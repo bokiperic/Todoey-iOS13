@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
@@ -14,6 +15,9 @@ class TodoListViewController: UITableViewController {
     
     // TODO: Update "appendinngPathComponent" (which will be depricated) with "appending" for iOS 16 or newer
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
+    // Added with the implementation of the CoreData
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     // For using User Defaults for persistene local data storing
     // User defaults should be used only to save a small chunk of data, like 100-200 KB, like volume, player name. It is NOT a DB and shouldn't be used as DB. All this is saved in .plist file, so the whole .plist file needs to be loaded up before app can use it, so app will be a much slower
@@ -69,8 +73,15 @@ class TodoListViewController: UITableViewController {
         let alert = UIAlertController(title: "New Todoey", message: "Please add new Todoey item", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Item", style: .default) { action in
             // What will happen once the user clicks the Add Item button on out UIAlert
-            let newItem = Item()
+            
+            // This oe is for using NSCoder, commented out after CoreDdata implementation
+//            let newItem = Item()
+            
+            // This is used if we implemet CoreData
+            let newItem = Item(context: self.context)
+            
             newItem.title = textField.text!
+            newItem.done = false
             self.itemArray.append(newItem)
             
 //          When using "user defaults" for save:
@@ -92,27 +103,48 @@ class TodoListViewController: UITableViewController {
     // MARK - Model Manipulation Methods
     func saveItems() {
 //        Will encode data (our item array) into a property list (.plist)
-        let encoder = PropertyListEncoder()
+        // This we'll comment out if we implement CoreData
+//        let encoder = PropertyListEncoder()
+//        do {
+//            let data = try encoder.encode(itemArray)
+//            try data.write(to: dataFilePath!)
+//        } catch {
+//            print("Error encoding item array, \(error)")
+//        }
+//        self.tableView.reloadData()
+//    }
         
+        // This is added as a part of the CoreData implementation
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
         } catch {
-            print("Error encoding item array, \(error)")
+            print("Error saving context \(error)")
         }
                         
         self.tableView.reloadData()
     }
     
+    // loadItems() function for usig the NSCoder for storage data
+//    func loadItems() {
+//        if let data = try? Data(contentsOf: dataFilePath!) {
+//            let decoder = PropertyListDecoder()
+//            do {
+//                itemArray = try decoder.decode([Item].self, from: data)
+//            } catch {
+//                print("Error decoding item array, \(error)")
+//            }
+//        }
+//    }
+    
+    // loadItems() function for using the CoreData for storage data
     func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("Error decoding item array, \(error)")
-            }
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetchig data from context \(error)")
         }
+        
     }
     
 }

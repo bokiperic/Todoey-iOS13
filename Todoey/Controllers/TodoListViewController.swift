@@ -13,12 +13,18 @@ class TodoListViewController: UITableViewController {
     
     var itemArray = [Item]()
     
-    // TODO: Update "appendinngPathComponent" (which will be depricated) with "appending" for iOS 16 or newer
+    var selectedCategory: Categories? {
+        didSet {
+            loadItems()
+        }
+    }
+    
+    // TODO: Update "appendingPathComponent" (which will be depricated) with "appending" for iOS 16 or newer
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     // Added with the implementation of the CoreData
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
+     
     // For using User Defaults for persistene local data storing
     // User defaults should be used only to save a small chunk of data, like 100-200 KB, like volume, player name. It is NOT a DB and shouldn't be used as DB. All this is saved in .plist file, so the whole .plist file needs to be loaded up before app can use it, so app will be a much slower
 //    let defaults =  UserDefaults.standard
@@ -28,14 +34,12 @@ class TodoListViewController: UITableViewController {
         
         print(dataFilePath)
         
-        loadItems()
-        
 //        if let items =  defaults.array(forKey: "TodoListArray") as [Item] {
 //            itemArray = items
 //        }
     }
     
-    // MARK - TableView Datasource Methods
+    // MARK: - TableView Datasource Methods
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
     }
@@ -54,10 +58,14 @@ class TodoListViewController: UITableViewController {
         return cell
     }
     
-    // MARK - TableView Delegate Methods
+    // MARK: - TableView Delegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print(itemArray[indexPath.row])
 
+        // The order in which those two commands will run is VERY IMMPORTANT!!!
+//        context.delete(itemArray[indexPath.row ])
+//        itemArray.remove(at: indexPath.row)
+        
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
         saveItems()
@@ -65,7 +73,7 @@ class TodoListViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    // MARK - Add New Items
+    // MARK: - Add New Items
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField()
@@ -74,7 +82,7 @@ class TodoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { action in
             // What will happen once the user clicks the Add Item button on out UIAlert
             
-            // This oe is for using NSCoder, commented out after CoreDdata implementation
+            // This one is for using NSCoder, commented out after CoreDdata implementation
 //            let newItem = Item()
             
             // This is used if we implemet CoreData
@@ -82,6 +90,7 @@ class TodoListViewController: UITableViewController {
             
             newItem.title = textField.text!
             newItem.done = false
+            newItem.parentCategory = self.selectedCategory
             self.itemArray.append(newItem)
             
 //          When using "user defaults" for save:
@@ -100,7 +109,7 @@ class TodoListViewController: UITableViewController {
         
     }
     
-    // MARK - Model Manipulation Methods
+    // MARK: - Model Manipulation Methods
     func saveItems() {
 //        Will encode data (our item array) into a property list (.plist)
         // This we'll comment out if we implement CoreData
@@ -136,13 +145,55 @@ class TodoListViewController: UITableViewController {
 //        }
 //    }
     
-    // loadItems() function for using the CoreData for storage data
-    func loadItems() {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
+    // loadItems() function for using the CoreData for storage data (method with a DEFAULT argument value example)
+    func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        // with optional binding and no risk of unwraping a nil value
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+        
+        // w/o optional binding and with the risk of unwarping a nil value
+//        let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, predicate])
+//        request.predicate = compoundPredicate
+        
         do {
             itemArray = try context.fetch(request)
         } catch {
             print("Error fetchig data from context \(error)")
+        }
+        
+        tableView.reloadData()
+        
+    }
+    
+    
+}
+
+//MARK: - Search bar methods
+extension TodoListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        loadItems(with: request, predicate: predicate)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchBar.text?.count == 0 {
+            loadItems()
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
         }
         
     }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D859C352A532A150010E97D /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D859C342A532A150010E97D /* CategoryViewController.swift */; };
 		5DE4B5922A09280A007FA1E8 /* Item1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE4B5912A09280A007FA1E8 /* Item1.swift */; };
 		5DE4B5992A0BAF80007FA1E8 /* DataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 5DE4B5972A0BAF80007FA1E8 /* DataModel.xcdatamodeld */; };
 		EB2BE4FA239524DB00FB933B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2BE4F9239524DB00FB933B /* AppDelegate.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5D859C342A532A150010E97D /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
 		5DE4B5912A09280A007FA1E8 /* Item1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item1.swift; sourceTree = "<group>"; };
 		5DE4B5982A0BAF80007FA1E8 /* DataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DataModel.xcdatamodel; sourceTree = "<group>"; };
 		EB2BE4F6239524DB00FB933B /* Todoey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todoey.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,6 +53,7 @@
 		5DE4B5942A092895007FA1E8 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				5D859C342A532A150010E97D /* CategoryViewController.swift */,
 				EB2BE4FD239524DB00FB933B /* TodoListViewController.swift */,
 			);
 			path = Controllers;
@@ -173,6 +176,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5D859C352A532A150010E97D /* CategoryViewController.swift in Sources */,
 				EB2BE4FE239524DB00FB933B /* TodoListViewController.swift in Sources */,
 				5DE4B5992A0BAF80007FA1E8 /* DataModel.xcdatamodeld in Sources */,
 				5DE4B5922A09280A007FA1E8 /* Item1.swift in Sources */,

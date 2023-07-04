@@ -8,7 +8,7 @@
 
 import Foundation
 
-// No need for this class if we implement CoreData to this project. It stays only as an example for the project done w/o CoreData, but renamed to "Item1"
+// No need for this class if we implement CoreData to this project. It stays only as an example for the project done w/o CoreData, but renamed to "Item1" as it is not needed and can nbe deleted after implementinng CoreData solution
 class Item1: Codable {
     var title: String = ""
     var done: Bool = false
